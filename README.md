@@ -28,44 +28,69 @@ can be used as well, but this has not been tested and should be used with cautio
     <th colspan=2>Required arguments:</th>
   </tr>
   <tr>
-    <td>`-s`, `--source=SOURCE`</td><td>The folder where unprocessed XML files are stored.</td>
+    <td>
+      <code>-s</code><br>
+      <code>--source=SOURCE</code></td>
+    <td>The folder where unprocessed XML files are stored.</td>
   </tr>
   <tr>
-    <td>`-d`, `--destination=DESTINATION`</td><td>The folder where processed XML files will be stored.</td>
+    <td>
+      <code>-d</code><br>
+      <code>--destination=DESTINATION</code></td>
+    <td>The folder where processed XML files will be stored.</td>
   </tr>
   <tr>
-    <td>`-b`, `--blacklist=BLACKLIST`</td><td>A text file containing names of XML nodes to be removed.</td>
+    <td>
+      <code>-b</code><br>
+      <code>--blacklist=BLACKLIST</code></td>
+    <td>A text file containing names of XML nodes to be removed.</td>
   </tr>
 
   <tr>
     <th colspan=2>Optional arguments:</th>
   </tr>
   <tr>
-    <td>`-k`, `--backup`</td><td>Will rename the DESTINATION folder before building another copy.</td>
+    <td>
+      <code>-k</code><br>
+      <code>--backup</code></td>
+    <td>Will rename the DESTINATION folder before building another copy.</td>
   </tr>
   <tr>
-    <td>`-n`, `--nuke`</td>
     <td>
-      Will destroy the DESTINATION folder completely before rebuilding it. (Does nothing if --backup is also supplied.)
+      <code>-n</code><br>
+      <code>--nuke</code></td>
+    <td>
+      Will destroy the DESTINATION folder completely before rebuilding it. (Does nothing if <code>--backup</code> is
+      also supplied.)
     </td>
   </tr>
   <tr>
-    <td>`-l`, `--symlink=ACTION`</td>
+    <td>
+      <code>-l</code><br>
+      <code>--symlink=ACTION</code></td>
     <td>
       The action to take with symbolic links. Can be one of:
-      - file - (default) processes and copies the target files into the DESTINATION folder.
-      - link - copies the links and leaves the target files untouched.
-      - ignore - does not copy symlinks.
+      <ul>
+        <li><code>file</code> - (default) processes and copies the target files into the DESTINATION folder.</li>
+        <li><code>link</code> - copies the links and leaves the target files untouched.</li>
+        <li><code>ignore</code> - does not copy symlinks.</li>
+      </ul>
     </td>
   </tr>
   <tr>
-    <td>`-R`, `--no-recurse`</td><td>Will not copy subfolders from SOURCE.</td>
+    <td>
+      <code>-R</code><br>
+      <code>--no-recurse</code></td>
+    <td>Will not copy subfolders from SOURCE.</td>
   </tr>
 
   <tr>
     <th colspan=2>Other options:</th>
   </tr>
   <tr>
-    <td>`-h`, `--help`</td><td>Show this message.</td>
+    <td>
+      <code>-h</code><br>
+      <code>--help</code></td>
+    <td>Show this message.</td>
   </tr>
 </table>
