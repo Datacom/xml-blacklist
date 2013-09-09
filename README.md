@@ -29,20 +29,17 @@ can be used as well, but this has not been tested and should be used with cautio
   </tr>
   <tr>
     <td>
-      <code>-s</code><br>
-      <code>--source=SOURCE</code></td>
+      <code>-s</code>, <code>--source=SOURCE</code></td>
     <td>The folder where unprocessed XML files are stored.</td>
   </tr>
   <tr>
     <td>
-      <code>-d</code><br>
-      <code>--destination=DESTINATION</code></td>
+      <code>-d</code>, <code>--destination=DESTINATION</code></td>
     <td>The folder where processed XML files will be stored.</td>
   </tr>
   <tr>
     <td>
-      <code>-b</code><br>
-      <code>--blacklist=BLACKLIST</code></td>
+      <code>-b</code>, <code>--blacklist=BLACKLIST</code></td>
     <td>A text file containing names of XML nodes to be removed.</td>
   </tr>
 
@@ -51,14 +48,12 @@ can be used as well, but this has not been tested and should be used with cautio
   </tr>
   <tr>
     <td>
-      <code>-k</code><br>
-      <code>--backup</code></td>
+      <code>-k</code>, <code>--backup</code></td>
     <td>Will rename the DESTINATION folder before building another copy.</td>
   </tr>
   <tr>
     <td>
-      <code>-n</code><br>
-      <code>--nuke</code></td>
+      <code>-n</code>, <code>--nuke</code></td>
     <td>
       Will destroy the DESTINATION folder completely before rebuilding it. (Does nothing if <code>--backup</code> is
       also supplied.)
@@ -66,8 +61,7 @@ can be used as well, but this has not been tested and should be used with cautio
   </tr>
   <tr>
     <td>
-      <code>-l</code><br>
-      <code>--symlink=ACTION</code></td>
+      <code>-l</code>, <code>--symlink=ACTION</code></td>
     <td>
       The action to take with symbolic links. Can be one of:
       <ul>
@@ -79,8 +73,7 @@ can be used as well, but this has not been tested and should be used with cautio
   </tr>
   <tr>
     <td>
-      <code>-R</code><br>
-      <code>--no-recurse</code></td>
+      <code>-R</code>, <code>--no-recurse</code></td>
     <td>Will not copy subfolders from SOURCE.</td>
   </tr>
 
@@ -89,8 +82,7 @@ can be used as well, but this has not been tested and should be used with cautio
   </tr>
   <tr>
     <td>
-      <code>-h</code><br>
-      <code>--help</code></td>
+      <code>-h</code>, <code>--help</code></td>
     <td>Show this message.</td>
   </tr>
 </table>
