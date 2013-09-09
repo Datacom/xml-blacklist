@@ -1,0 +1,138 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+require 'nokogiri'
+
+class Dir
+  # Recursively creates a directory. Unlike #mkdir, #mkpath will do nothing rather than fail if the directory already
+  # exists.
+  #
+  # E.g. <code>Dir.mkpath('path/to/deep/folder')</code>
+  def self.mkpath(path, *permissions)
+    parent = File.split(path)[0]
+    mkpath(parent, *permissions) unless exists?(parent)
+    mkdir(path, *permissions) unless exists?(path)
+  end
+end
+
+def convert(src_dir, dst_dir, bl_file, options = {})
+  raise "No such directory '#{src_dir}'" unless Dir.exists?(src_dir)
+
+  src_dir, dst_dir = [src_dir, dst_dir].map { |dir| dir.sub(/\/+$/, '') } # strip trailing slashes, or files end up in weird places
+
+  if options[:backup] && Dir.exists?(dst_dir)
+    timestamp = File.open(dst_dir).mtime.strftime('%Y%m%d%H%M%S')
+    system "mv #{dst_dir} #{dst_dir}_#{timestamp}" or exit($?) # Dir doesn't seem to have a 'rename' or 'move' method
+  end
+
+  if options[:nuke]
+    system "rm -rf #{dst_dir}" or exit($?) # Dir.delete fails if the directory is not empty, and has no 'force' option
+  end
+
+  search_str = options[:no_recurse] ? File.join(src_dir, '*') : File.join(src_dir, '**', '*')
+  files      = Dir.glob(search_str)
+  blacklist  = File.read(bl_file).split("\n")
+
+  files.each do |src|
+    dst = src.sub(src_dir, dst_dir)
+
+    if File.symlink?(src)
+      case options[:symlink]
+        when :ignore
+          next
+        when :link
+          Dir.mkpath File.split(dst)[0]
+          File.symlink(File.readlink(src), dst)
+          next
+        else
+          # Nothing to do here when it's :file as the code treats symlinks like normal files anyway
+          # Other (invalid) options should already have been caught by OptionParser
+      end
+    end
+
+    content = Nokogiri.parse(File.read(src)) rescue next # Will skip anything it doesn't like
+
+    blacklist.each do |node|
+      content.css(node).each &:remove # CSS, because plain words are taken as node names
+    end
+
+    output = content.to_s.gsub(/\s+\n/m, "\n") # Removed nodes don't remove their surrounding white space
+
+    Dir.mkpath File.split(dst)[0] # Create the directory structure in the destination if it's not already there
+
+    File.write(dst, output) # Will overwrite existing files
+  end
+end
+
+options = {}
+
+OptionParser.new do |opts|
+  opts.banner = <<-STR
+Usage: #{__FILE__} OPTION...
+Copy all files from one directory to another, stripping out specified XML nodes from each file in the process.
+
+All files from SOURCE will be processed and copied to DESTINATION. Unless --no-recurse is supplied, all subfolders will
+be copied as well. Only folders with files in them will be copied. File types are not checked. Symlinks are copied into
+normal files by default, but with --symlink=link the target will be relinked (without change) in DESTINATION, or with
+--symlink=ignore will be ignored completely.
+
+Files with duplicate names will be overwritten. If --nuke is supplied, the entire DESTINATION folder will be destroyed
+before rebuilding it; otherwise, non-duplicate files will be kept. If --backup is supplied and DESTINATION already
+exists, it will first be renamed with a timestamp representing its modification time, and a new folder will be built.
+
+The BLACKLIST file should contain a list of node names to be removed, one name per line. In theory, other CSS selectors
+can be used as well, but this has not been tested and should be used with caution.
+  STR
+
+  opts.separator "\nRequired arguments:"
+
+  opts.on('-s', '--source=SOURCE', 'The folder where unprocessed XML files are stored.') do |param|
+    options[:source] = param
+  end
+
+  opts.on('-d', '--destination=DESTINATION', 'The folder where processed XML files will be stored.') do |param|
+    options[:destination] = param
+  end
+
+  opts.on('-b', '--blacklist=BLACKLIST', 'A text file containing names of XML nodes to be removed.') do |param|
+    options[:blacklist] = param
+  end
+
+  opts.separator "\nOptional arguments:"
+
+  opts.on('-k', '--backup', 'Will rename the DESTINATION folder before building another copy.') do |param|
+    options[:backup] = param
+  end
+
+  opts.on('-n', '--nuke', 'Will destroy the DESTINATION folder completely before rebuilding it.',
+          '  (Does nothing if --backup is also supplied.)') do |param|
+    options[:nuke] = param
+  end
+
+  symlink_options = [:file, :link, :ignore]
+  opts.on('-l', '--symlink=ACTION', symlink_options,
+          'The action to take with symbolic links. Can be one of:',
+          '  file   - (default) processes and copies the target files into the DESTINATION folder.',
+          '  link   - copies the links and leaves the target files untouched.',
+          '  ignore - does not copy symlinks.'
+  ) do |param|
+    options[:symlink] = param
+  end
+
+  opts.on('-R', '--no-recurse', 'Will not copy subfolders from SOURCE.') do |param|
+    options[:no_recurse] = !param # The 'no-' prefix makes false get passed instead of true
+  end
+
+  opts.separator "\nOther options:"
+
+  opts.on_tail('-h', '--help', 'Show this message.') do
+    puts opts
+    exit
+  end
+end.parse!(ARGV)
+
+src = options.delete(:source)      or raise('Source folder is required.')
+dst = options.delete(:destination) or raise('Destination folder is required.')
+blf = options.delete(:blacklist)   or raise('Blacklist file is required.')
+
+convert(src, dst, blf, options)
